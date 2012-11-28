@@ -9,6 +9,11 @@ has info => (
     isa => 'Str',
 );
 
+has 'num'=>(
+    is  => 'rw',
+    isa => 'Num',
+);
+
 has 'out_transition' => (
     is  => 'rw',
     isa => 'HashRef[Item]',
