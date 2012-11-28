@@ -2,3 +2,28 @@ Automaton
 =========
 
 An automaton implementation for general purposes.
+
+INSTALLATION
+===
+
+To install this module type the following:
+
+    perl Makefile.PL
+    make
+    make test
+    make install
+
+DEPENDENCIES
+===
+
+This module requires these other modules and libraries:
+
+  Moose
+
+COPYRIGHT AND LICENCE
+===
+Copyright (C) 2012 by terrencehan(hanliang1990@gmail.com)
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.14.2 or,
+at your option, any later version of Perl 5 you may have available.
