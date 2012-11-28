@@ -9,36 +9,40 @@ has info => (
     isa => 'Str',
 );
 
-has [ 'in_transition', 'out_transition' ] => (
+has 'out_transition' => (
     is  => 'rw',
-    isa => 'HashRef[Defined]',
+    isa => 'HashRef[Item]',
 );
-
-sub _add_transition {
-    my ( $self, $label, $target, $type ) = @_;
-    if ( $type eq 'in' ) {
-        my $hash = $self->in_transition;
-        $hash->{$label} ||= [];
-        push $hash->{$label}, $target;
-        $self->in_transition($hash);
-    }
-    else {    #out
-        my $hash = $self->out_transition;
-    }
-}
 
 sub add_out_transition {
     my ( $self, $label, $to ) = @_;
-    $self->_add_transition( $label, $to, 'out' );
+    my $hash = $self->out_transition;
+    $hash->{$label} ||= [];
+    push $hash->{$label}, $to;
+    $self->out_transition($hash);
 }
 
-sub add_in_transition {
-    my ( $self, $label, $from ) = @_;
-    $self->_add_transition( $label, $from, 'in' );
+sub out_degree {
+    my $self = shift;
+    return scalar keys $self->out_transition;
 }
 
-sub _search_label{}
-sub search_out_label{ }
-sub search_in_label{ }
+sub search_out_label {
+    my ( $self, $label ) = @_;
+    my $hash = $self->out_transition;
+    return scalar @{ $hash->{$label} || [] };
+}
+
+sub delete_transition {
+    my ( $self, $label ) = @_;
+    my $hash = $self->out_transition;
+    delete $hash->{$label};
+    $self->out_transition($hash);
+}
+
+sub empty_transition {
+    my $self = shift;
+    $self->out_transition( {} );
+}
 
 1;

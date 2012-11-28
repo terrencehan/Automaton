@@ -8,10 +8,18 @@ BEGIN { use_ok('State') }
 
 my $obj = new State;
 
-my $hash = $obj->out_transition;
+is $obj->search_out_label('not exist'), 0;
 
-$obj->add_in_transition( 'e', 2 );
+$obj->add_out_transition( 'r', 4 );
+$obj->add_out_transition( 'r', 3 );
+is $obj->search_out_label('r'), 2;
+$obj->add_out_transition( 'e', 3 );
+is $obj->out_degree, 2;
 
-is ref( $obj->in_transition ), 'HASH';
-is ref( $obj->in_transition->{e} ), 'ARRAY';
+$obj->delete_transition('r');
+is $obj->search_out_label('r'), 0;
+is $obj->out_degree, 1;
+
+$obj->empty_transition;
+is $obj->out_degree, 0;
 
