@@ -1,3 +1,7 @@
+# lib/State.pm
+# Copyright (c) 2012 terrencehan
+# hanliang1990@gmail.com
+
 package State;
 
 use 5.014002;
@@ -28,17 +32,25 @@ sub add_out_transition {
 }
 
 sub out_degree {
-    my $self = shift;
-    return scalar keys $self->out_transition;
+    my $self  = shift;
+    my $count = 0;
+    $count += scalar @{ $self->out_transition->{$_} }
+      for ( keys $self->out_transition );
+
+    $count;
 }
 
 sub search_out_label {
+
+    #return the number of out-transitions with given label
     my ( $self, $label ) = @_;
     my $hash = $self->out_transition;
     return scalar @{ $hash->{$label} || [] };
 }
 
 sub delete_transition {
+
+    #delete all out-transitions labeled by $label
     my ( $self, $label ) = @_;
     my $hash = $self->out_transition;
     delete $hash->{$label};

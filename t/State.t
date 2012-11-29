@@ -1,3 +1,7 @@
+# t/State.pm
+# Copyright (c) 2012 terrencehan
+# hanliang1990@gmail.com
+
 use strict;
 use warnings;
 use lib '../lib';
@@ -13,8 +17,9 @@ is $obj->search_out_label('not exist'), 0;
 $obj->add_out_transition( 'r', 4 );
 $obj->add_out_transition( 'r', 3 );
 is $obj->search_out_label('r'), 2;
+
 $obj->add_out_transition( 'e', 3 );
-is $obj->out_degree, 2;
+is $obj->out_degree, 3;
 
 $obj->delete_transition('r');
 is $obj->search_out_label('r'), 0;
