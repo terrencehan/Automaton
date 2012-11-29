@@ -1,16 +1,17 @@
-
 use strict;
 use warnings;
 use lib '../lib';
 
+use Data::Dump qw/dump/;
 use Test::More 'no_plan';
+#test 1
 BEGIN { use_ok('Automation') };
 
+#test 2
 my $obj = new Automation;
 
 $obj->read_file('transition.table');
 
-use Data::Dump qw/dump/;
 my $res = (dump $obj->states)."\n";
 
 my $res_expect =<<END;
@@ -22,3 +23,4 @@ my $res_expect =<<END;
 ]
 END
 is $res, $res_expect;
+
