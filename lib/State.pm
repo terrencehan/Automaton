@@ -19,8 +19,9 @@ has num => (
 );
 
 has out_transition => (
-    is  => 'rw',
-    isa => 'HashRef[Item]',
+    is      => 'rw',
+    isa     => 'HashRef[Item]',
+    default => sub { {} },
 );
 
 sub add_out_transition {
