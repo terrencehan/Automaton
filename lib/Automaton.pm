@@ -32,6 +32,8 @@ sub read_file {
         my ($state_index) = $_ =~ /(\d+)/;
         my $states = $self->states;
         $states->[$state_index] ||= new State( num => $state_index );
+        $states->[$state_index]->is_acc(1) if /\*/;
+
         while (/{.*?}|#/g) {
             my $entry = $&;
             while ( $entry =~ /\d+/g ) {
@@ -49,7 +51,11 @@ sub as_png {
     my $self = shift;
     my $g = new GraphViz( rankdir => 'LR' );
 
-    $g->add_node( $_->num ) for ( @{ $self->states } );
+    for ( @{ $self->states } ) {
+        my $shape = '';
+        $shape = 'doublecircle' if $_->is_acc;
+        $g->add_node( $_->num, shape => $shape );
+    }
 
     for my $state ( @{ $self->states } ) {
         for my $label ( keys %{ $state->out_transition } ) {
@@ -118,7 +124,7 @@ sub epsilon_closure_t {
     #           }
     #   }
 
-    my ( $self, $T ) = @_; # T : ArrayRef
+    my ( $self, $T ) = @_;    # T : ArrayRef
     return if $self->is_dfa;
 
 }

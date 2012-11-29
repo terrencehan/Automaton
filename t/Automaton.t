@@ -21,10 +21,10 @@ my $res = (dump $obj->states)."\n";
 
 my $res_expect =<<END;
 [
-  bless({ num => 0, out_transition => { a => [0, 1], b => [0] } }, "State"),
-  bless({ num => 1, out_transition => { b => [2] } }, "State"),
-  bless({ num => 2, out_transition => { b => [3] } }, "State"),
-  bless({ num => 3, out_transition => {} }, "State"),
+  bless({ is_acc => 0, num => 0, out_transition => { a => [0, 1], b => [0] } }, "State"),
+  bless({ is_acc => 0, num => 1, out_transition => { b => [2] } }, "State"),
+  bless({ is_acc => 0, num => 2, out_transition => { b => [3] } }, "State"),
+  bless({ is_acc => 1, num => 3, out_transition => {} }, "State"),
 ]
 END
 #test 4

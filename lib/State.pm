@@ -13,9 +13,10 @@ has info => (
     isa => 'Str',
 );
 
-has num => (
-    is  => 'rw',
-    isa => 'Num',
+has [ 'num', 'is_acc' ] => (
+    is      => 'rw',
+    isa     => 'Num',
+    default => 0, #for 'is_acc'
 );
 
 has out_transition => (
