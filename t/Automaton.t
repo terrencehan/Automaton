@@ -12,7 +12,7 @@ my $obj = new Automaton;
 #test 2
 is $obj->is_empty, 1;
 
-$obj->read_file('transition.table');
+$obj->read_file('transition_table/transition.table');
 
 #test 3
 is $obj->is_empty, 0;

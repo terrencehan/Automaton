@@ -97,7 +97,7 @@ sub epsilon_closure_s {
 
     #return a set of NFA states reachable from NFA state s
     #on epsilon-transition alone.
-    my ($self, $s) = @_;
+    my ( $self, $s ) = @_;
     return if $self->is_dfa;
 
 }
@@ -106,7 +106,19 @@ sub epsilon_closure_t {
 
     #return a set of NFA states from some NFA state s in
     #set T on epsilon-transition alone
-    my ($self, $T) = @_;
+
+    #Algorithm:
+    #   push all states of T onto stack;
+    #   while(stack is not empty){
+    #       pop t, the top element off stack;
+    #       for(each state u with an edge from t to u labeled epsilon)
+    #           if(u is not in epsilon_closure_t(T)){
+    #               add u to epsilon_closure_t(T);
+    #               push u onto satck;
+    #           }
+    #   }
+
+    my ( $self, $T ) = @_; # T : ArrayRef
     return if $self->is_dfa;
 
 }
