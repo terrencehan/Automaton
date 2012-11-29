@@ -1,4 +1,4 @@
-package Automation;
+package Automaton;
 
 use 5.014002;
 
