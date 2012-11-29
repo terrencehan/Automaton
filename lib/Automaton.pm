@@ -88,9 +88,34 @@ sub is_nfa {
     $self->is_dfa ? 0 : 1;
 }
 
-sub to_dfa   {
+sub to_dfa {
     my $self = shift;
     return if $self->is_dfa;
+}
+
+sub epsilon_closure_s {
+
+    #return a set of NFA states reachable from NFA state s
+    #on epsilon-transition alone.
+    my ($self, $s) = @_;
+    return if $self->is_dfa;
+
+}
+
+sub epsilon_closure_t {
+
+    #return a set of NFA states from some NFA state s in
+    #set T on epsilon-transition alone
+    my ($self, $T) = @_;
+    return if $self->is_dfa;
+
+}
+
+sub move {
+
+    #return a set of NFA to which there is a transition
+    #on input symbol a from some state s in T.
+    my ( $self, $T, $symbol ) = @_;
 }
 sub min_dfa  { }
 sub as_table { }
