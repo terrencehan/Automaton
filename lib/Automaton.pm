@@ -95,6 +95,19 @@ sub is_nfa {
 }
 
 sub to_dfa {
+    #return a new Automaton object which is the created DFA
+
+    #Algorithm:(subset construction)
+    #   initially, epsilon_closure_s(s0) is the only state in Dstates, and it's unmarked
+    #   while(there is an unmarked state T in Dstates){
+    #       mark T;
+    #       for(each input symbol a){
+    #           U = epsilon_closure_t(move(T, a));
+    #           if(U is not in Dstates)
+    #               add U as an unmarked state to Dstates;
+    #           Dtran[T, a] = U;
+    #       }
+    #   }
     my $self = shift;
     return if $self->is_dfa;
 }
@@ -138,7 +151,7 @@ sub epsilon_closure_t {
 
     #Algorithm:
     #   push all states of T onto stack;
-    #   initlalize epsilon_closure_t(T) to T;
+    #   initialize epsilon_closure_t(T) to T;
     #   while(stack is not empty){
     #       pop t, the top element off stack;
     #       for(each state u with an edge from t to u labeled epsilon)
