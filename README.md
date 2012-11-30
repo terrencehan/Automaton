@@ -25,7 +25,7 @@ This module requires these other modules and libraries:
 * Text::Table
 
 
-You should also make sure you've already installed graphviz and graphviz-dev package. If you don't have them, run this:
+You should also make sure you've already installed graphviz and graphviz-dev packages. If you don't , run this:
 
     sudo apt-get install graphviz graphviz-dev
 
