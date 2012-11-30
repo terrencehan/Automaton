@@ -39,4 +39,14 @@ undef $obj;
 $obj = new Automaton;
 $obj->read_file('transition_table/nfa.table');
 
-dump $obj->epsilon_closure_s($obj->states->[0]);
+my $test7_res = (dump $obj->epsilon_closure_s($obj->states->[0]))."\n";
+my $test7_res_expect = <<END;
+[
+  bless({ is_acc => 0, num => 0, out_transition => { epsilon => [1, 7] } }, "State"),
+  bless({ is_acc => 0, num => 7, out_transition => { a => [8], epsilon => [] } }, "State"),
+  bless({ is_acc => 0, num => 1, out_transition => { epsilon => [2, 4] } }, "State"),
+  bless({ is_acc => 0, num => 4, out_transition => { b => [5], epsilon => [] } }, "State"),
+  bless({ is_acc => 0, num => 2, out_transition => { a => [3], epsilon => [] } }, "State"),
+]
+END
+is $test7_res, $test7_res_expect;
