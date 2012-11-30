@@ -5,6 +5,7 @@
 package State;
 
 use 5.014002;
+use overload '~~' => 'match';
 
 use Moose;
 
@@ -16,7 +17,7 @@ has info => (
 has [ 'num', 'is_acc' ] => (
     is      => 'rw',
     isa     => 'Num',
-    default => 0, #for 'is_acc'
+    default => 0,       #for 'is_acc'
 );
 
 has out_transition => (
@@ -62,6 +63,11 @@ sub delete_transition {
 sub empty_transition {
     my $self = shift;
     $self->out_transition( {} );
+}
+
+sub match {
+    my ( $self, $compared ) = @_;
+    $self->num == $compared->num ? 1 : 0;
 }
 
 1;
