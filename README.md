@@ -3,7 +3,7 @@ Automaton
 
 An automaton implementation for general purposes.
 
-![Alt text](png/nfa.table.png)
+![Alt text](https://raw.github.com/terrencehan/Automaton/master/png/nfa.table.png)
 
 INSTALLATION
 ===
