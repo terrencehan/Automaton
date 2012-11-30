@@ -5,6 +5,7 @@
 use strict;
 use warnings;
 use lib '../lib';
+use 5.010;
 
 use Test::More 'no_plan';
 
@@ -28,3 +29,10 @@ is $obj->out_degree, 1;
 $obj->empty_transition;
 is $obj->out_degree, 0;
 
+my @arr;
+push @arr, new State( num => 100 );
+is(( ( new State( num => 100 ) ) ~~ @arr ), 1);
+is(( ( new State( num => 101 ) ) ~~ @arr ), '');
+push @arr, new State( num => 101 );
+is(( ( new State( num => 101 ) ) ~~ @arr ), 1);
+is(( ( new State( num => 100 ) ) ~~ @arr ), 1);
