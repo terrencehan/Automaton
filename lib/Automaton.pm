@@ -18,9 +18,8 @@ has 'states' => (
 );
 
 has 'first_state' => (
-    is      => 'rw',
-    isa     => 'Num',
-    default => 0,
+    is  => 'rw',
+    isa => 'State',
 );
 
 has 'symbols' => (
@@ -45,7 +44,8 @@ sub read_file {
         my ($state_index) = $_ =~ /(\d+)/;
         my $states = $self->states;
         $states->[$state_index] ||= new State( label => $state_index );
-        $states->[$state_index]->is_acc(1) if /\*/;
+        $states->[$state_index]->is_acc(1) if /acc/i;
+        $self->first_state( $states->[$state_index] ) if /entry/i;
 
         while (/{.*?}|#/g) {
             my $entry = $&;
@@ -77,7 +77,7 @@ sub as_png {
         width  => 0,
         height => 0
     );
-    $g->add_edge( -1 => 0, label => 'start' );
+    $g->add_edge( -1 => $self->first_state->label, label => 'start' );
 
     for my $state ( @{ $self->states } ) {
         for my $label ( keys %{ $state->out_transition } ) {
@@ -133,6 +133,18 @@ sub to_dfa {
 #   }
     my $self = shift;
     return if $self->is_dfa;
+    my ( @Dstates, @marked );    # ([3, 2, 4, 4], [2, 2, 3, 5], [3, 3, 4, 5])
+    push @Dstates, $self->epsilon_closure_s( $self->first_state );
+    while ( scalar @Dstates ) {    #all states in Dstates are unmarked
+        my $T;
+        push @marked, $T = pop @Dstates;
+        for my $s( @{ $self->symbols } ) {
+            my $U = $self->epsilon_closure_t( $self->move( $T, $s ) );
+            if(scalar @{$U}){
+                push @Dstates, $U unless ( $U ~~ @Dstates or $U ~~ @marked );
+            }
+        }
+    }
 }
 
 sub epsilon_closure_s {
@@ -164,6 +176,7 @@ sub epsilon_closure_s {
         }
     }
 
+    @reachable = sort {$a->label <=> $b->label} @reachable;
     \@reachable;    #return
 }
 
@@ -201,6 +214,7 @@ sub epsilon_closure_t {
             }
         }
     }
+    @collection = sort {$a->label <=> $b->label} @collection;
     \@collection;
 }
 
@@ -210,11 +224,12 @@ sub move {
     #on input symbol a from some state s in T.
     my ( $self, $T, $symbol ) = @_;    # T : ArrayRef
     my @collection = ();
-    for ( @{$T} ) {
-        for ( @{ $_->out_transition->{$symbol} } ) {
+    for my $state ( @{$T} ) {
+        for ( @{ $state->out_transition->{$symbol} } ) {
             push @collection, $self->states->[$_];
         }
     }
+    @collection = sort {$a->label <=> $b->label} @collection;
     \@collection;
 }
 
@@ -227,8 +242,8 @@ sub as_table {
         push $acc, $state->label;
         for ( @{ $self->symbols } ) {
             if ( defined $state->out_transition->{$_} ) {
-                push $acc, "{ " . (join ', ',
-                  @{ $state->out_transition->{$_} }) . " }";
+                push $acc, "{ "
+                  . ( join ', ', @{ $state->out_transition->{$_} } ) . " }";
             }
             else {
                 push $acc, '#';

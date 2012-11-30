@@ -47,10 +47,10 @@ my $test7_res = ( dump $obj->epsilon_closure_s( $obj->states->[0] ) ) . "\n";
 my $test7_res_expect = <<END;
 [
   bless({ is_acc => 0, label => 0, out_transition => { epsilon => [1, 7] } }, "State"),
-  bless({ is_acc => 0, label => 7, out_transition => { a => [8], epsilon => [] } }, "State"),
   bless({ is_acc => 0, label => 1, out_transition => { epsilon => [2, 4] } }, "State"),
-  bless({ is_acc => 0, label => 4, out_transition => { b => [5], epsilon => [] } }, "State"),
   bless({ is_acc => 0, label => 2, out_transition => { a => [3], epsilon => [] } }, "State"),
+  bless({ is_acc => 0, label => 4, out_transition => { b => [5], epsilon => [] } }, "State"),
+  bless({ is_acc => 0, label => 7, out_transition => { a => [8], epsilon => [] } }, "State"),
 ]
 END
 is $test7_res, $test7_res_expect;
@@ -80,11 +80,12 @@ my $test9_res        = ( dump $obj->epsilon_closure_t( \@test9_arr ) ) . "\n";
 my $test9_res_expect = <<END;
 [
   bless({ is_acc => 0, label => 1, out_transition => { epsilon => [2, 4] } }, "State"),
+  bless({ is_acc => 0, label => 2, out_transition => { a => [3], epsilon => [] } }, "State"),
+  bless({ is_acc => 0, label => 4, out_transition => { b => [5], epsilon => [] } }, "State"),
   bless({ is_acc => 0, label => 5, out_transition => { epsilon => [6] } }, "State"),
   bless({ is_acc => 0, label => 6, out_transition => { epsilon => [1, 7] } }, "State"),
   bless({ is_acc => 0, label => 7, out_transition => { a => [8], epsilon => [] } }, "State"),
-  bless({ is_acc => 0, label => 2, out_transition => { a => [3], epsilon => [] } }, "State"),
-  bless({ is_acc => 0, label => 4, out_transition => { b => [5], epsilon => [] } }, "State"),
 ]
 END
 is $test9_res, $test9_res_expect;
+$obj->to_dfa;

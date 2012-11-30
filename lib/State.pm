@@ -16,7 +16,7 @@ has info => (
 
 has 'label' => (
     is  => 'rw',
-    isa => 'Num',
+    isa => 'Item',
     default => 0,
 );
 
