@@ -44,7 +44,7 @@ sub read_file {
         my $count = 0;
         my ($state_index) = $_ =~ /(\d+)/;
         my $states = $self->states;
-        $states->[$state_index] ||= new State( num => $state_index );
+        $states->[$state_index] ||= new State( label => $state_index );
         $states->[$state_index]->is_acc(1) if /\*/;
 
         while (/{.*?}|#/g) {
@@ -67,7 +67,7 @@ sub as_png {
     for ( @{ $self->states } ) {
         my $shape = '';
         $shape = 'doublecircle' if $_->is_acc;
-        $g->add_node( $_->num, shape => $shape );
+        $g->add_node( $_->label, shape => $shape );
     }
 
     $g->add_node(    #start
@@ -82,7 +82,7 @@ sub as_png {
     for my $state ( @{ $self->states } ) {
         for my $label ( keys %{ $state->out_transition } ) {
             for my $to ( @{ $state->out_transition->{$label} } ) {
-                $g->add_edge( $state->num => $to, label => $label );
+                $g->add_edge( $state->label => $to, label => $label );
             }
         }
     }
@@ -224,7 +224,7 @@ sub as_table {
     my @collection;
     for my $state ( @{ $self->states } ) {
         my $acc = [];
-        push $acc, $state->num;
+        push $acc, $state->label;
         for ( @{ $self->symbols } ) {
             if ( defined $state->out_transition->{$_} ) {
                 push $acc, "{ " . (join ', ',

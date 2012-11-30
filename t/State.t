@@ -30,9 +30,9 @@ $obj->empty_transition;
 is $obj->out_degree, 0;
 
 my @arr;
-push @arr, new State( num => 100 );
-is( ( ( new State( num => 100 ) ) ~~ @arr ), 1 );
-is( ( ( new State( num => 101 ) ) ~~ @arr ), '' );
-push @arr, new State( num => 101 );
-is( ( ( new State( num => 101 ) ) ~~ @arr ), 1 );
-is( ( ( new State( num => 100 ) ) ~~ @arr ), 1 );
+push @arr, new State( label => 100 );
+is( ( ( new State( label => 100 ) ) ~~ @arr ), 1 );
+is( ( ( new State( label => 101 ) ) ~~ @arr ), '' );
+push @arr, new State( label => 101 );
+is( ( ( new State( label => 101 ) ) ~~ @arr ), 1 );
+is( ( ( new State( label => 100 ) ) ~~ @arr ), 1 );

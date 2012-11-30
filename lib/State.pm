@@ -14,10 +14,17 @@ has info => (
     isa => 'Str',
 );
 
-has [ 'num', 'is_acc' ] => (
+has 'label' => (
+    is  => 'rw',
+    isa => 'Num',
+    default => 0,
+);
+
+has 'is_acc' => (
     is      => 'rw',
-    isa     => 'Num',
-    default => 0,       #for 'is_acc'
+    isa     => 'Bool',
+    default => 0,
+
 );
 
 has out_transition => (
@@ -67,7 +74,7 @@ sub empty_transition {
 
 sub match {
     my ( $self, $compared ) = @_;
-    $self->num == $compared->num ? 1 : 0;
+    $self->label == $compared->label ? 1 : 0;
 }
 
 1;
