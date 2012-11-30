@@ -18,9 +18,9 @@ DEPENDENCIES
 
 This module requires these other modules and libraries:
 
-*Moose
-*Graphviz
-*Text::Table
+* Moose
+* Graphviz
+* Text::Table
 
 
 You should also make sure you've already installed graphviz and graphviz-dev package. If you don't have them, run this:
