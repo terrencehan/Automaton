@@ -3,6 +3,8 @@ Automaton
 
 An automaton implementation for general purposes.
 
+![Alt text](png/nfa.table.png)
+
 INSTALLATION
 ===
 
