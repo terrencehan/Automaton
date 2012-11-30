@@ -17,6 +17,18 @@ has 'states' => (
     default => sub { [] },
 );
 
+has 'first_state' => (
+    is      => 'rw',
+    isa     => 'Num',
+    default => 0,
+);
+
+has 'symbols' => (
+    is      => 'rw',
+    isa     => 'ArrayRef[Str]',
+    default => sub { [] },
+);
+
 sub read_file {
     my ( $self, $file_path ) = @_;
     open my $in, "<", $file_path or die "cannot open the transition table file";
@@ -25,6 +37,7 @@ sub read_file {
     my $first_line = <$in>;
     my @symbols = split /\s+/, $first_line;
     shift @symbols;    #remove 'state'
+    $self->symbols( \@symbols );
 
     #deal with each line from the 2nd line
     while (<$in>) {
@@ -57,7 +70,7 @@ sub as_png {
         $g->add_node( $_->num, shape => $shape );
     }
 
-    $g->add_node( #start
+    $g->add_node(    #start
         '-1',
         label  => '',
         shape  => 'plaintext',
@@ -205,7 +218,27 @@ sub move {
     \@collection;
 }
 
-sub min_dfa  { }
-sub as_table { }
+sub as_table {
+    my $self = shift;
+    my $t = new Text::Table( 'state', @{ $self->symbols } );
+    my @collection;
+    for my $state ( @{ $self->states } ) {
+        my $acc = [];
+        push $acc, $state->num;
+        for ( @{ $self->symbols } ) {
+            if ( defined $state->out_transition->{$_} ) {
+                push $acc, "{ " . (join ', ',
+                  @{ $state->out_transition->{$_} }) . " }";
+            }
+            else {
+                push $acc, '#';
+            }
+        }
+        push @collection, $acc;
+    }
 
+    $t->load(@collection);
+    $t;
+}
+sub min_dfa { }
 1;
