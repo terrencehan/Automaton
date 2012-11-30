@@ -57,6 +57,15 @@ sub as_png {
         $g->add_node( $_->num, shape => $shape );
     }
 
+    $g->add_node( #start
+        '-1',
+        label  => '',
+        shape  => 'plaintext',
+        width  => 0,
+        height => 0
+    );
+    $g->add_edge( -1 => 0, label => 'start' );
+
     for my $state ( @{ $self->states } ) {
         for my $label ( keys %{ $state->out_transition } ) {
             for my $to ( @{ $state->out_transition->{$label} } ) {
@@ -95,19 +104,20 @@ sub is_nfa {
 }
 
 sub to_dfa {
+
     #return a new Automaton object which is the created DFA
 
-    #Algorithm:(subset construction)
-    #   initially, epsilon_closure_s(s0) is the only state in Dstates, and it's unmarked
-    #   while(there is an unmarked state T in Dstates){
-    #       mark T;
-    #       for(each input symbol a){
-    #           U = epsilon_closure_t(move(T, a));
-    #           if(U is not in Dstates)
-    #               add U as an unmarked state to Dstates;
-    #           Dtran[T, a] = U;
-    #       }
-    #   }
+#Algorithm:(subset construction)
+#   initially, epsilon_closure_s(s0) is the only state in Dstates, and it's unmarked
+#   while(there is an unmarked state T in Dstates){
+#       mark T;
+#       for(each input symbol a){
+#           U = epsilon_closure_t(move(T, a));
+#           if(U is not in Dstates)
+#               add U as an unmarked state to Dstates;
+#           Dtran[T, a] = U;
+#       }
+#   }
     my $self = shift;
     return if $self->is_dfa;
 }
