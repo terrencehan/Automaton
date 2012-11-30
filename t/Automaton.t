@@ -33,3 +33,10 @@ is $res, $res_expect;
 is $obj->is_nfa, 1;
 #test 6
 is $obj->is_dfa, 0;
+
+#test 7
+undef $obj;
+$obj = new Automaton;
+$obj->read_file('transition_table/nfa.table');
+
+dump $obj->epsilon_closure_s($obj->states->[0]);

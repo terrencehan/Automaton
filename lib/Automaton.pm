@@ -103,9 +103,32 @@ sub epsilon_closure_s {
 
     #return a set of NFA states reachable from NFA state s
     #on epsilon-transition alone.
+
+    #Algorithm:
+    #   push s onto stack
+    #   while(stack is not empty){
+    #       pop ss, the top element off stack
+    #       put ss in @reachable
+    #       for(each ss's out-transition=>t){
+    #           if t is not in @reachable
+    #               push t onto stack
+    #       }
     my ( $self, $s ) = @_;
     return if $self->is_dfa;
 
+    my (@stack, @reachable); 
+
+    push @stack, $s;
+    while(scalar @stack){
+        my $ss = pop @stack;
+        push @reachable, $ss;
+        for my $t (@{$ss->out_transition->{epsilon}}){
+            my $state = $self->states->[$t];
+            push @stack, $state unless $state ~~ @reachable;
+        }
+    }
+
+    \@reachable; #return 
 }
 
 sub epsilon_closure_t {
@@ -135,6 +158,7 @@ sub move {
     #on input symbol a from some state s in T.
     my ( $self, $T, $symbol ) = @_;
 }
+
 sub min_dfa  { }
 sub as_table { }
 
