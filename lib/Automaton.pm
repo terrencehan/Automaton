@@ -138,6 +138,7 @@ sub epsilon_closure_t {
 
     #Algorithm:
     #   push all states of T onto stack;
+    #   initlalize epsilon_closure_t(T) to T;
     #   while(stack is not empty){
     #       pop t, the top element off stack;
     #       for(each state u with an edge from t to u labeled epsilon)
@@ -150,13 +151,28 @@ sub epsilon_closure_t {
     my ( $self, $T ) = @_;    # T : ArrayRef
     return if $self->is_dfa;
 
+    my ( @stack, @collection );
+    for ( @{$T} ) {
+        push @stack,      $_;
+        push @collection, $_;
+    }
+    while ( scalar @stack ) {
+        my $t = pop @stack;
+        for ( @{ $t->out_transition->{epsilon} } ) {
+            unless ( $self->states->[$_] ~~ @collection ) {
+                push @collection, $self->states->[$_];
+                push @stack,      $self->states->[$_];
+            }
+        }
+    }
+    \@collection;
 }
 
 sub move {
 
     #return a set of NFA to which there is a transition
     #on input symbol a from some state s in T.
-    my ( $self, $T, $symbol ) = @_;
+    my ( $self, $T, $symbol ) = @_;    # T : ArrayRef
     my @collection = ();
     for ( @{$T} ) {
         for ( @{ $_->out_transition->{$symbol} } ) {

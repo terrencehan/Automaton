@@ -61,7 +61,7 @@ my @test8_arr = ();
 push @test8_arr, $obj->states->[4];
 push @test8_arr, $obj->states->[8];
 push @test8_arr, $obj->states->[9];
-my $test8_res = ( dump $obj->move( \@test8_arr, 'b' ) )."\n";
+my $test8_res = ( dump $obj->move( \@test8_arr, 'b' ) ) . "\n";
 my $test8_res_expect = <<END;
 [
   bless({ is_acc => 0, num => 5, out_transition => { epsilon => [6] } }, "State"),
@@ -70,3 +70,21 @@ my $test8_res_expect = <<END;
 ]
 END
 is $test8_res, $test8_res_expect;
+
+#test 9
+
+my @test9_arr = ();
+push @test9_arr, $obj->states->[1];
+push @test9_arr, $obj->states->[5];
+my $test9_res        = ( dump $obj->epsilon_closure_t( \@test9_arr ) ) . "\n";
+my $test9_res_expect = <<END;
+[
+  bless({ is_acc => 0, num => 1, out_transition => { epsilon => [2, 4] } }, "State"),
+  bless({ is_acc => 0, num => 5, out_transition => { epsilon => [6] } }, "State"),
+  bless({ is_acc => 0, num => 6, out_transition => { epsilon => [1, 7] } }, "State"),
+  bless({ is_acc => 0, num => 7, out_transition => { a => [8], epsilon => [] } }, "State"),
+  bless({ is_acc => 0, num => 2, out_transition => { a => [3], epsilon => [] } }, "State"),
+  bless({ is_acc => 0, num => 4, out_transition => { b => [5], epsilon => [] } }, "State"),
+]
+END
+is $test9_res, $test9_res_expect;
