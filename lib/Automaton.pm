@@ -28,7 +28,14 @@ has 'symbols' => (
     default => sub { [] },
 );
 
+sub BUILD{
+    my ($self, $args) = @_;
+    use Data::Dump qw/dump/;
+}
+
 sub read_file {
+
+    #state label consists of letters and numbers
     my ( $self, $file_path ) = @_;
     open my $in, "<", $file_path or die "cannot open the transition table file";
 
@@ -39,17 +46,19 @@ sub read_file {
     $self->symbols( \@symbols );
 
     #deal with each line from the 2nd line
+    my $state_index = 0;
     while (<$in>) {
         my $count = 0;
-        my ($state_index) = $_ =~ /(\d+)/;
+        my ($label) = $_ =~ /^\s*(.*?)\s+/;
         my $states = $self->states;
-        $states->[$state_index] ||= new State( label => $state_index );
+        $states->[$state_index] ||=
+          new State( label => $label, num => $state_index );
         $states->[$state_index]->is_acc(1) if /acc/i;
         $self->first_state( $states->[$state_index] ) if /entry/i;
 
         while (/{.*?}|#/g) {
             my $entry = $&;
-            while ( $entry =~ /\d+/g ) {
+            while ( $entry =~ /[\d\w]+/g ) {
                 $states->[$state_index]
                   ->add_out_transition( $symbols[$count], $& );
             }
@@ -57,6 +66,7 @@ sub read_file {
         }
 
         $self->states($states);
+        $state_index++;
     }
 }
 
@@ -116,6 +126,23 @@ sub is_nfa {
     $self->is_dfa ? 0 : 1;
 }
 
+sub _state_list_ref2str {
+    my ( $self, $state_list_ref ) = @_;
+    "{" . ( join ", ", map { $_->label } @{$state_list_ref} ) . "}";
+}
+
+sub _str2state_list_ref {
+    my ( $self, $str ) = @_;
+    $str =~ s/{|}|\s//g;
+    my @collection;
+    for ( split /,/, $str ) {
+        my $state = $self->states->[$_];
+        die 'in _str2state_list_ref $state is null' unless defined $state;
+        push @collection, $state;
+    }
+    \@collection;
+}
+
 sub to_dfa {
 
     #return a new Automaton object which is the created DFA
@@ -133,18 +160,29 @@ sub to_dfa {
 #   }
     my $self = shift;
     return if $self->is_dfa;
-    my ( @Dstates, @marked );    # ([3, 2, 4, 4], [2, 2, 3, 5], [3, 3, 4, 5])
-    push @Dstates, $self->epsilon_closure_s( $self->first_state );
+    my ( @Dstates, @marked );    # ("{1, 2, 3}", "{3, 5}")
+    my %Dtran;
+    push @Dstates,
+      $self->_state_list_ref2str(
+        $self->epsilon_closure_s( $self->first_state ) );
     while ( scalar @Dstates ) {    #all states in Dstates are unmarked
-        my $T;
-        push @marked, $T = pop @Dstates;
-        for my $s( @{ $self->symbols } ) {
-            my $U = $self->epsilon_closure_t( $self->move( $T, $s ) );
-            if(scalar @{$U}){
-                push @Dstates, $U unless ( $U ~~ @Dstates or $U ~~ @marked );
+        my $T = pop @Dstates;      #T : Str -> "{1, 2, 3}"
+        push @marked, $T;
+        for my $symbol ( grep { $_ ne 'epsilon' } @{ $self->symbols } ) {
+            my $U = $self->_state_list_ref2str(
+                $self->epsilon_closure_t(
+                    $self->move( $self->_str2state_list_ref($T), $symbol )
+                )
+            );
+            if ( $U ne '{}' ) {
+                unless ( $U ~~ @Dstates or $U ~~ @marked ) {
+                    push @Dstates, $U;
+                }
+                $Dtran{$T}{$symbol} = $U;
             }
         }
     }
+    \%Dtran;
 }
 
 sub epsilon_closure_s {
@@ -176,7 +214,7 @@ sub epsilon_closure_s {
         }
     }
 
-    @reachable = sort {$a->label <=> $b->label} @reachable;
+    @reachable = sort { $a->label <=> $b->label } @reachable;
     \@reachable;    #return
 }
 
@@ -214,7 +252,7 @@ sub epsilon_closure_t {
             }
         }
     }
-    @collection = sort {$a->label <=> $b->label} @collection;
+    @collection = sort { $a->label <=> $b->label } @collection;
     \@collection;
 }
 
@@ -229,7 +267,7 @@ sub move {
             push @collection, $self->states->[$_];
         }
     }
-    @collection = sort {$a->label <=> $b->label} @collection;
+    @collection = sort { $a->label <=> $b->label } @collection;
     \@collection;
 }
 
@@ -255,5 +293,16 @@ sub as_table {
     $t->load(@collection);
     $t;
 }
+
+sub get_accs {
+    my $self  = shift;
+    my @acc;
+    for(@{$self->states}){
+        push @acc, $_ if $_->is_acc;
+    }
+    \@acc;
+}
+
 sub min_dfa { }
+
 1;

@@ -14,9 +14,14 @@ has info => (
     isa => 'Str',
 );
 
-has 'label' => (
+has num => (    #corresponds to automaton_object->states
     is  => 'rw',
-    isa => 'Item',
+    isa => 'Num',
+);
+
+has 'label' => (
+    is      => 'rw',
+    isa     => 'Item',
     default => 0,
 );
 
