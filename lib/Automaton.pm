@@ -28,9 +28,34 @@ has 'symbols' => (
     default => sub { [] },
 );
 
-sub BUILD{
-    my ($self, $args) = @_;
-    use Data::Dump qw/dump/;
+sub BUILD {
+    my ( $self, $args ) = @_;
+
+    #args->{
+    #   state1=>{  #state1 here means the label of state
+    #           symbol1=>target_state1,
+    #           symbol2=>target_state2,
+    #       },
+    #   state2=>{symbol1=>target_state1},
+    #}
+
+    #use Data::Dump qw/dump/;
+    #dump $args;
+
+    my $count   = 0;
+    my $states  = [];
+    my $symbols = [];
+    for my $state ( keys %{$args} ) {    #$state stands for label
+        $states->[$count] ||= new State( label => $state, num => $count );
+        for my $symbol ( keys %{ $args->{$state} } ) {
+            $states->[$count]
+              ->add_out_transition( $symbol, $args->{$state}->{$symbol} );
+            push $symbols, $symbol unless $symbol ~~ $symbols;
+        }
+        $count++;
+    }
+    $self->states($states);
+    $self->symbols($symbols);
 }
 
 sub read_file {
@@ -182,7 +207,10 @@ sub to_dfa {
             }
         }
     }
-    \%Dtran;
+    my $new = new Automaton( \%Dtran );
+    $self->states( $new->states );
+    $self->symbols( $new->symbols );
+    $self->first_state( $new->states->[0] );
 }
 
 sub epsilon_closure_s {
@@ -295,9 +323,9 @@ sub as_table {
 }
 
 sub get_accs {
-    my $self  = shift;
+    my $self = shift;
     my @acc;
-    for(@{$self->states}){
+    for ( @{ $self->states } ) {
         push @acc, $_ if $_->is_acc;
     }
     \@acc;
