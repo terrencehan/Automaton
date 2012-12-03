@@ -33,10 +33,12 @@ sub BUILD {
 
     #args->{
     #   state1=>{  #state1 here means the label of state
-    #           symbol1=>target_state1,
-    #           symbol2=>target_state2,
-    #       },
-    #   state2=>{symbol1=>target_state1},
+    #           out_transition=>{
+    #                 symbol1=>target_state1,
+    #                 symbol2=>target_state2,
+    #           }, 
+    #           is_acc => 1, 
+    #   },
     #}
 
     #use Data::Dump qw/dump/;
