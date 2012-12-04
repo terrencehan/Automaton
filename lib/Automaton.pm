@@ -36,15 +36,15 @@ sub BUILD {
     #           out_transition=>{
     #                 symbol1=>target_state1,
     #                 symbol2=>target_state2,
-    #           }, 
-    #           is_acc => 1, 
+    #           },
+    #           is_acc => 1,
     #   },
     #}
 
     #use Data::Dump qw/dump/;
     #dump $args;
 
-    my $count   = 0;
+    my $count   = 0;    #index of obj->states
     my $states  = [];
     my $symbols = [];
     for my $state ( keys %{$args} ) {    #$state stands for label
@@ -192,6 +192,7 @@ sub to_dfa {
     push @Dstates,
       $self->_state_list_ref2str(
         $self->epsilon_closure_s( $self->first_state ) );
+    my $first_state_rep = $Dstates[0];
     while ( scalar @Dstates ) {    #all states in Dstates are unmarked
         my $T = pop @Dstates;      #T : Str -> "{1, 2, 3}"
         push @marked, $T;
@@ -209,10 +210,35 @@ sub to_dfa {
             }
         }
     }
+
+    #use [A-Z] to label states of DFA
+    my $count = 'A';
+    my %map;
+    my @accs_labels =
+      map { $_->label }
+      @{ $self->get_accs };    #get labels of all acceptable states
+    $map{$_} = $count++ for ( keys %Dtran );
+    for my $map_key ( keys %map ) {
+        $Dtran{ $map{$map_key} } = $Dtran{$map_key};
+        for ( keys %{ $Dtran{$map_key} } ) {
+            $Dtran{ $map{$map_key} }->{$_} = $map{ $Dtran{$map_key}->{$_} };
+        }
+
+        delete $Dtran{$map_key};
+    }
+
+    #use Data::Dump qw/dump/;
+    #say dump %Dtran;
+    #say for ( keys %Dtran );
+
     my $new = new Automaton( \%Dtran );
     $self->states( $new->states );
     $self->symbols( $new->symbols );
-    $self->first_state( $new->states->[0] );
+
+    $first_state_rep = $map{$first_state_rep};
+    my ($new_first_state) =
+      grep { $_->label eq $first_state_rep } @{ $new->states };
+    $self->first_state($new_first_state);
 }
 
 sub epsilon_closure_s {
@@ -326,10 +352,7 @@ sub as_table {
 
 sub get_accs {
     my $self = shift;
-    my @acc;
-    for ( @{ $self->states } ) {
-        push @acc, $_ if $_->is_acc;
-    }
+    my @acc = grep { $_->is_acc } @{ $self->states };
     \@acc;
 }
 

@@ -65,7 +65,7 @@ cmp_deeply $obj->_str2state_list_ref("{1, 2, 4}"),
 #test 12
 cmp_deeply $obj->get_accs, [ $obj->states->[10] ];
 
-#$obj->to_dfa;
-#use File::Slurp;
-#write_file( "temp.png", $obj->as_png );
+$obj->to_dfa;
+use File::Slurp;
+write_file( "temp.png", $obj->as_png );
 
