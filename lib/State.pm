@@ -38,6 +38,14 @@ has out_transition => (
     default => sub { {} },
 );
 
+has action => (
+    is      => 'rw',
+    isa     => 'CodeRef',
+    default => sub {
+        sub { say "no action"; }
+    },
+);
+
 sub add_out_transition {
     my ( $self, $label, $to ) = @_;
     my $hash = $self->out_transition;
