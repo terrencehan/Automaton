@@ -23,6 +23,7 @@ This module requires these other modules and libraries:
 * Moose
 * Graphviz
 * Text::Table
+* List::Compare
 
 
 You should also make sure you've already installed graphviz and graphviz-dev packages. If you don't , run this:

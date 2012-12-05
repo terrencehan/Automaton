@@ -10,6 +10,7 @@ use Moose;
 use State;
 use GraphViz;
 use Text::Table;
+use List::Compare;
 
 has 'states' => (
     is      => 'rw',
@@ -48,10 +49,10 @@ sub BUILD {
     my $states  = [];
     my $symbols = [];
     for my $state ( keys %{$args} ) {    #$state stands for label
-        $states->[$count] ||= new State( label => $state, num => $count );
-        for my $symbol ( keys %{ $args->{$state} } ) {
+        $states->[$count] ||= new State( label => $state, num => $count, is_acc => $args->{$state}{is_acc} );
+        for my $symbol ( keys %{ $args->{$state}{out_transition} } ) {
             $states->[$count]
-              ->add_out_transition( $symbol, $args->{$state}->{$symbol} );
+              ->add_out_transition( $symbol, $args->{$state}{out_transition}{$symbol} );
             push $symbols, $symbol unless $symbol ~~ $symbols;
         }
         $count++;
@@ -206,7 +207,7 @@ sub to_dfa {
                 unless ( $U ~~ @Dstates or $U ~~ @marked ) {
                     push @Dstates, $U;
                 }
-                $Dtran{$T}{$symbol} = $U;
+                $Dtran{$T}{out_transition}{$symbol} = $U;
             }
         }
     }
@@ -220,16 +221,18 @@ sub to_dfa {
     $map{$_} = $count++ for ( keys %Dtran );
     for my $map_key ( keys %map ) {
         $Dtran{ $map{$map_key} } = $Dtran{$map_key};
-        for ( keys %{ $Dtran{$map_key} } ) {
-            $Dtran{ $map{$map_key} }->{$_} = $map{ $Dtran{$map_key}->{$_} };
+        for ( keys %{ $Dtran{$map_key}{out_transition} } ) {
+            $Dtran{ $map{$map_key} }->{out_transition}{$_} = $map{ $Dtran{$map_key}{out_transition}{$_}} ;
         }
+
+        no warnings;
+        my @cmp = %{eval $map_key};
+        use warnings;
+        my $lc = List::Compare->new(\@cmp, \@accs_labels);
+        $Dtran{ $map{$map_key}}->{is_acc} = 1 if $lc->get_intersection;
 
         delete $Dtran{$map_key};
     }
-
-    #use Data::Dump qw/dump/;
-    #say dump %Dtran;
-    #say for ( keys %Dtran );
 
     my $new = new Automaton( \%Dtran );
     $self->states( $new->states );
