@@ -11,6 +11,7 @@ use State;
 use GraphViz;
 use Text::Table;
 use List::Compare;
+use Storable qw/dclone/;
 
 has 'states' => (
     is      => 'rw',
@@ -49,10 +50,14 @@ sub BUILD {
     my $states  = [];
     my $symbols = [];
     for my $state ( keys %{$args} ) {    #$state stands for label
-        $states->[$count] ||= new State( label => $state, num => $count, is_acc => $args->{$state}{is_acc} );
+        $states->[$count] ||= new State(
+            label  => $state,
+            num    => $count,
+            is_acc => $args->{$state}{is_acc}
+        );
         for my $symbol ( keys %{ $args->{$state}{out_transition} } ) {
-            $states->[$count]
-              ->add_out_transition( $symbol, $args->{$state}{out_transition}{$symbol} );
+            $states->[$count]->add_out_transition( $symbol,
+                $args->{$state}{out_transition}{$symbol} );
             push $symbols, $symbol unless $symbol ~~ $symbols;
         }
         $count++;
@@ -222,14 +227,15 @@ sub to_dfa {
     for my $map_key ( keys %map ) {
         $Dtran{ $map{$map_key} } = $Dtran{$map_key};
         for ( keys %{ $Dtran{$map_key}{out_transition} } ) {
-            $Dtran{ $map{$map_key} }->{out_transition}{$_} = $map{ $Dtran{$map_key}{out_transition}{$_}} ;
+            $Dtran{ $map{$map_key} }->{out_transition}{$_} =
+              $map{ $Dtran{$map_key}{out_transition}{$_} };
         }
 
         no warnings;
-        my @cmp = %{eval $map_key};
+        my @cmp = %{ eval $map_key };
         use warnings;
-        my $lc = List::Compare->new(\@cmp, \@accs_labels);
-        $Dtran{ $map{$map_key}}->{is_acc} = 1 if $lc->get_intersection;
+        my $lc = List::Compare->new( \@cmp, \@accs_labels );
+        $Dtran{ $map{$map_key} }->{is_acc} = 1 if $lc->get_intersection;
 
         delete $Dtran{$map_key};
     }
@@ -360,6 +366,34 @@ sub get_accs {
     \@acc;
 }
 
-sub min_dfa { }
+sub __partition_with_symbol{
+    my ($G, $pi, $symbol) = @_;
+}
+
+sub _get_new_pi {
+    my $self   = shift;
+    my $pi     = shift;        #ArrayRef
+    my $new_pi = dclone $pi;
+    for my $G ( @${pi} ) {
+        my @new_Gs = ();
+        for my $symbol(@{$self->symbols}){
+
+        }
+        undef $G;
+    }
+}
+
+sub min_dfa {
+    my $self = shift;
+    my @F    = grep { $_->is_acc } @{ $self->states };
+    my @S    = grep { not $_->is_acc } @{ $self->states };
+    my $pi   = [ \@F, \@S ];
+    my $new_pi;
+    do {
+        $new_pi = $self->_get_new_pi($pi);
+    } while ('pi is not equal to new_pi');
+
+    $self; #return 
+}
 
 1;
