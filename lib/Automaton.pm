@@ -242,6 +242,7 @@ sub to_dfa {
     my ($new_first_state) =
       grep { $_->label eq $first_state_rep } @{ $new->states };
     $self->first_state($new_first_state);
+    $self;
 }
 
 sub epsilon_closure_s {
