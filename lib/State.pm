@@ -86,8 +86,12 @@ sub empty_transition {
 }
 
 sub match {
+
+    #return 1 if $obj ~~ $same_obj or $obj ~~ @list_contains_the_obj
+    #return 0 if $obj ~~ $other_obj
+    #return '' if $obj ~~ @list_not_contains_the_obj
     my ( $self, $compared ) = @_;
-    $self->label == $compared->label ? 1 : 0;
+    $self->label ~~ $compared->label ? 1 : 0;
 }
 
 1;

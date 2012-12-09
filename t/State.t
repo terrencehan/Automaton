@@ -36,3 +36,4 @@ is( ( ( new State( label => 101 ) ) ~~ @arr ), '' );
 push @arr, new State( label => 101 );
 is( ( ( new State( label => 101 ) ) ~~ @arr ), 1 );
 is( ( ( new State( label => 100 ) ) ~~ @arr ), 1 );
+

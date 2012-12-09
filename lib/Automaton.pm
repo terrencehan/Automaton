@@ -11,6 +11,7 @@ use State;
 use GraphViz;
 use Text::Table;
 use List::Compare;
+use Data::Dump qw/dump/;    #debug
 use Storable qw/dclone/;
 
 has 'states' => (
@@ -281,7 +282,7 @@ sub epsilon_closure_s {
     }
 
     @reachable = sort { $a->label <=> $b->label } @reachable;
-    \@reachable;    #return
+    \@reachable;
 }
 
 sub epsilon_closure_t {
@@ -366,34 +367,60 @@ sub get_accs {
     \@acc;
 }
 
-sub __partition_with_symbol{
-    my ($G, $pi, $symbol) = @_;
+sub __partition_with_symbol {
+    my ( $new_Gs, $pi, $symbol ) =
+      @_;    # #new_Gs = [$G, $G, $G, ..] $pi-->read-only
+    for my $G ( @{$new_Gs} ) {
+
+        my %hash = ();  # a tempory hash table, key-->label of state, value-->index of group in pi which contains the state responding to key
+        for ( my $i = 0 ; $i < $#{$G} ; $i++ ) { # $i is index of states in $G
+            my $state = $G->[$i];
+        }
+    }
 }
 
 sub _get_new_pi {
     my $self   = shift;
-    my $pi     = shift;        #ArrayRef
-    my $new_pi = dclone $pi;
+    my $pi     = shift;    #ArrayRef
+                           #my $new_pi = dclone $pi; #maybe we don't need this
+    my @new_pi = ();
     for my $G ( @${pi} ) {
-        my @new_Gs = ();
-        for my $symbol(@{$self->symbols}){
 
+#next unless scalar @{$G};    # if only have one element #since groups is add into @new_pi, so we can't skip loop simply.
+        my @new_Gs = ($G);    #store the new groups
+        for my $symbol ( @{ $self->symbols } )
+        {                     #use each symbol to partition every group
+            __partition_with_symbol( \@new_Gs, $pi, $symbol )
+              ;               # $G should not be modified
         }
-        undef $G;
+
+        push @new_pi, @new_Gs;    #add elements of @new_Gs into @new_pi
     }
 }
 
 sub min_dfa {
     my $self = shift;
-    my @F    = grep { $_->is_acc } @{ $self->states };
-    my @S    = grep { not $_->is_acc } @{ $self->states };
-    my $pi   = [ \@F, \@S ];
-    my $new_pi;
-    do {
-        $new_pi = $self->_get_new_pi($pi);
-    } while ('pi is not equal to new_pi');
+    return unless $self->is_dfa;
+    my @F = grep { $_->is_acc } @{ $self->states };
+    my @S = grep { not $_->is_acc } @{ $self->states };
+    my $pi = [ \@F, \@S ];
 
-    $self; #return 
+    say dump $pi;                 #debug
+
+    my $new_pi = $pi;
+    do {
+        $pi     = $new_pi;                   #$new_pi is from former loop
+        $new_pi = $self->_get_new_pi($pi);
+    } while ("pi doesn't equal to new_pi");
+    $pi = $new_pi;
+
+    #here, we've got the wanted partition
+    #...
+    #do something else
+
+    $self;    #return
 }
+
+sub re { }
 
 1;
